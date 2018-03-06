@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: ek-provider
+endpoints:
+  sensitive: false
+eureka:
+  client:
+    instance-info-replication-interval-seconds: 10
+    service-url:
+      defaultZone: http://localhost:8761/eureka
