@@ -36,3 +36,8 @@ EurekaHealth配置了Eureka客户端健康度，通过实现HealthIndicator和He
 + 添加SpringBoot提供的actuator实现健康度检测功能
 + 配置服务实例刷新时间
 + 实现HealthIndicator和HealthCheckHandler达到客户端状态变更，通知到服务端更状其状态，客户端将获取不到down掉的服务
+
+### [FirstRibbon](/FirstRibbon)
+1.使用原生ribbon的API进行应用
+2.通过硬编码的方式进行配置
+3.通过配置文件的方式进行配置
