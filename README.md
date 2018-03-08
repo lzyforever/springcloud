@@ -45,8 +45,16 @@ EurekaHealth配置了Eureka客户端健康度，通过实现HealthIndicator和He
 3.通过配置文件的方式进行配置
 
 ### [RibbonRule](/RibbonRule)
-1、默认的负载均衡规则的使用
+1.默认的负载均衡规则的使用
 
-2、内置的负载均衡规则
+2.内置的负载均衡规则
 
-3、配置负载均衡规则
+3.配置负载均衡规则
+
+### [RibbonSpring](/RibbonSpring)
+1.自定义规则类
+2.自定义配置类
+3.通过注解的方式进行配置
+4.通过配置文件进行配置
+5.调用测试
+6.查看SpringCloud封装的Ribbon有哪些默认配置
