@@ -39,14 +39,10 @@ EurekaHealth配置了Eureka客户端健康度，通过实现HealthIndicator和He
 
 ### [FirstRibbon](/FirstRibbon)
 1.使用原生ribbon的API进行应用
-
 2.通过硬编码的方式进行配置
-
 3.通过配置文件的方式进行配置
 
 ### [RibbonRule](/RibbonRule)
 1、默认的负载均衡规则的使用
-
 2、内置的负载均衡规则
-
 3、配置负载均衡规则
