@@ -72,12 +72,14 @@ RibbonSpring是应用Spring整合Ribbon，通过Spring封装的Ribbon接口来�
 
 ### [rest-tempate-test](/rest-tempate-test)
 
-rest-tempate-test是通过代码理解RestTemplate通过LoadBalanced注解实现负载均衡原理
+rest-tempate-test是通过代码理解RestTemplate通过LoadBalanced注解实现负载均衡原理，之所以RestTemplate具有负载均衡的功能，很大一部分是依赖于RestTemplate自身的拦截器实现的，其拦截器中运用了Ribbon的负载均衡
 
 1.自定义实现LoadBalanced注解
 
-2.应用自定义实现的LoadBalanced
+2.应用自定义实现的LoadBalanced注解
 
-3.自定义HttpRequest
+3.自定义http请求HttpRequest类
 
-4.在Spring初始化时，添加自定义拦截器，改变其URI
+4.自定义拦截器类
+
+5.在Spring初始化时，添加自定义拦截器，改变其URI
