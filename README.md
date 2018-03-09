@@ -45,6 +45,9 @@ EurekaHealth配置了Eureka客户端健康度，通过实现HealthIndicator和He
 3.通过配置文件的方式进行配置
 
 ### [RibbonRule](/RibbonRule)
+
+RibbonRule是自定义实现Ribbon的规则，通过自定义Ribbon的负载均衡规则，实现分配可控
+
 1.默认的负载均衡规则的使用
 
 2.内置的负载均衡规则
@@ -52,6 +55,9 @@ EurekaHealth配置了Eureka客户端健康度，通过实现HealthIndicator和He
 3.配置负载均衡规则
 
 ### [RibbonSpring](/RibbonSpring)
+
+RibbonSpring是应用Spring整合Ribbon，通过Spring封装的Ribbon接口来使用Ribbon
+
 1.自定义规则类
 
 2.自定义配置类
@@ -63,3 +69,15 @@ EurekaHealth配置了Eureka客户端健康度，通过实现HealthIndicator和He
 5.调用测试
 
 6.查看SpringCloud封装的Ribbon有哪些默认配置
+
+### [rest-tempate-test](/rest-tempate-test)
+
+rest-tempate-test是通过代码理解RestTemplate通过LoadBalanced注解实现负载均衡原理
+
+1.自定义实现LoadBalanced注解
+
+2.应用自定义实现的LoadBalanced
+
+3.自定义HttpRequest
+
+4.在Spring初始化时，添加自定义拦截器，改变其URI
