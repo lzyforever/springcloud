@@ -83,3 +83,7 @@ rest-tempate-test是通过代码理解RestTemplate通过LoadBalanced注解实现
 4.自定义拦截器类
 
 5.在Spring初始化时，添加自定义拦截器，改变其URI
+
+### [rest-invoke](/rest-invoke)
+
+rest-invoke包含cxf、restlet和简单的feign调用restful api使用方法
