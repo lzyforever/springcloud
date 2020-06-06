@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jack.sharding.repository.LouDongRepository">
+
+    <resultMap id="baseResultMap" type="com.jack.sharding.po.LouDong">
+        <result column="id" property="id" jdbcType="VARCHAR" />
+        <result column="city" property="city" jdbcType="VARCHAR" />
+        <result column="region" property="region" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="ld_num" property="ldNum" jdbcType="VARCHAR" />
+        <result column="unit_num" property="unitNum" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <insert id="addLouDong">
+        insert into loudong
+        (id, city, region, name, ld_num, unit_num)
+        values(
+	        #{id,jdbcType=VARCHAR},
+	        #{city,jdbcType=VARCHAR},
+	        #{region,jdbcType=VARCHAR},
+	        #{name,jdbcType=VARCHAR},
+	        #{ldNum,jdbcType=VARCHAR},
+	        #{unitNum,jdbcType=VARCHAR}
+	    )
+    </insert>
+
+    <select id="list" resultMap="baseResultMap">
+        select ld.* from loudong ld
+    </select>
+
+</mapper>

@@ -1,0 +1,6 @@
+server:
+  port: 8761
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL_LIST:http://luozy:jack123@localhost:8762/eureka/,http://luozy:jack123@localhost:8763/eureka/}

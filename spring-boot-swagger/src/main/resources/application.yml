@@ -1,0 +1,11 @@
+server:
+  port: 9010
+
+spring:
+  application:
+    name: spring-boot-swagger
+
+swagger:
+  base-package: com.jack # swagger扫描包
+  authorization:
+    key-name: Authorization # 配置这个是将swagger原本默认的token改成Authorization

@@ -1,0 +1,22 @@
+server:
+  port: 9008
+
+spring:
+  boot:
+    admin:
+      client:
+        url: http://localhost:9007 # Spring Boot Admin Server地址
+        username: luozy
+        password: jack123
+  application:
+    name: spring-boot-admin-client
+
+# 暴露所有actuator端点信息，可以获取更多的服务详细数据
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging: # 配置了日志文件地址，就可以在spring boot admin管理界面查看
+  file: /logs/spring-boot-admin-client-demo.log

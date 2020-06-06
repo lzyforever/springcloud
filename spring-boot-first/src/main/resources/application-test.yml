@@ -1,0 +1,7 @@
+server:
+  port: 8080
+
+com:
+  jack:
+    name: test
+    nickName: 234

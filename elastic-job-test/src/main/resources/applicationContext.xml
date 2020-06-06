@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:reg="http://www.dangdang.com/schema/ddframe/reg"
+       xmlns:job="http://www.dangdang.com/schema/ddframe/job"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.dangdang.com/schema/ddframe/reg
+                        http://www.dangdang.com/schema/ddframe/reg/reg.xsd
+                        http://www.dangdang.com/schema/ddframe/job
+                        http://www.dangdang.com/schema/ddframe/job/job.xsd
+                        ">
+    <!--配置作业注册中心 -->
+    <reg:zookeeper id="regCenter" server-lists="192.168.4.203:2181" namespace="dd-job"
+                   base-sleep-time-milliseconds="1000" max-sleep-time-milliseconds="3000" max-retries="3"/>
+
+    <bean id="elasticJobLog" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url"
+                  value="jdbc:mysql://192.168.1.113:3306/jack-test?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!--作业配置 sharding-total-count的数量和 sharding-item-parameters的数量应该一致  -->
+    <job:simple id="mySimpleJob" class="com.jack.job.MySimpleJob" registry-center-ref="regCenter"
+                cron="0 0 10 * * ?" sharding-total-count="2" sharding-item-parameters="0=0,1=1"
+                description="我的第一个简单作业" overwrite="true"/>
+
+    <!-- overwrite为true则以本地覆盖注册中心的配置信息，如果不加则会用注册中心的，本地修改不会生效 -->
+    <!-- sharding-total-count 为2也就是有2个节点同时处理数据 -->
+    <!-- sharding-item-parameters 是分片的具体参数，配置格式为key=value多个用逗号开隔,key的规则是分片的索引信息从0开始 -->
+    <!-- event-trace-rdb-data-source 需要跟踪的任务中添加此属性并指定上面定义的数据库连接BeanID -->
+    <job:simple id="mySimpleJob2" class="com.jack.job.MySimpleJob2" registry-center-ref="regCenter"
+                cron="0 29 21 * * ?" sharding-total-count="2" sharding-item-parameters="0=0,1=1"
+                description="这个是模拟业务数据分片处理的作业啊" overwrite="true" event-trace-rdb-data-source="elasticJobLog"
+                job-exception-handler="com.jack.job.CustomJobExceptionHandler"/>
+
+    <!--数据流作业配置-->
+    <job:dataflow id="myDataflowJob" class="com.jack.job.MyDataFlowJob" registry-center-ref="regCenter"
+                  cron="0 15 15 * * ?" sharding-total-count="1" sharding-item-parameters=""
+                  description="这是我的数据流作业啊" streaming-process="true" overwrite="true"/>
+
+    <!--脚本作业配置-->
+    <job:script id="myScriptJob" registry-center-ref="regCenter" cron="0/10 * * * * ?"
+                sharding-total-count="1" sharding-item-parameters="" overwrite="true"
+                script-command-line="F:\cloud-dev\elastic-job-test\test.bat" description="这是我的脚本作业啊"
+                event-trace-rdb-data-source="elasticJobLog">
+        <job:listener class="com.jack.job.MessageElasticJobListener"/>
+    </job:script>
+
+</beans>

@@ -1,0 +1,95 @@
+server:
+  port: 8888
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/,http://luozy:jack123@localhost:8762/eureka/,http://luozy:jack123@localhost:8763/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+
+spring:
+  application:
+    name: gateway
+  redis:
+    host: 192.168.4.202
+    port: 6379
+    password: V5yrNjwd9U53Vfg3U37wEdKca3
+    database: 7
+  cloud:
+    gateway:
+#      globalcors:  # 通过配置文件进行跨域配置
+#        cors-configurations:
+#          '[/**]':
+#            allowedOrigins: "*"
+#            exposedHeaders:
+#              - content-type
+#            allowedHeaders:
+#              - content-type
+#            allowCredentials: true
+#            allowedMethods:
+#              - GET
+#              - OPTIONS
+#              - PUT
+#              - DELETE
+#              - POST
+      discovery:
+        locator:
+          enabled: true # 整合Eureka中的默认路由
+          lowerCaseServiceId: true # 将服务名称全部转成小写
+      routes:
+        - id: jack # 一级访问，当访问localhost:8888/jack时会转发到http://jack.com/jack
+          uri: http://jack.com
+          predicates:
+            - Path=/course
+        - id: luozy # 支持多级，当访问localhost:8888/luozy/topic/1时会转发到http://jack.com/luozy/topic/1
+          uri: http://jack.com
+          predicates:
+            - Path=/luozy/**
+        - id: feign-user-provider # 整合Eureka路由，以lb://开头代表从注册中心获取服务，后面接需要转发到的服务名称
+          uri: lb://feign-user-provider  # 服务名称必须和Eureka中的对应
+          predicates: # 断言工厂里面的关系是并且关系
+            - Path=/feign-user-provider/**  # Path路由断言工厂
+            - Query=name, luo.* # Query路由断言工厂，匹配的是?name=luo.*，.是匹配1位，.*就是以luo开头的，后面无数位
+            - Method=GET  # Method路由断言工厂，接收一个参数，即要匹配的HTTP方法
+#            - Header=X-Request-Id, \d+  # Header路由断言工厂，接收两个参数，分别是请求头名称和正则表达式
+            - name: Custom # 自定义断言工厂，下面是配置其中定义的Config类的参数，记得args与name对齐
+              args:
+                name: luozy
+          filters:
+            - StripPrefix=1 # 删除请求参数中/feign-user-provider这一段，因为服务里面没有这个路径，当然，如果服务配了context-path，那么这里就不需要
+            - AddRequestHeader=X-Request-Id, 123 #符合规则匹配成功的请求，将添加X-Request-Id:123的请求头，将其传递到后端后，可通过request.getHeader("X-Request-Id")获取
+            - RemoveRequestHeader=X-Request-Id
+            - SetStatus=MULTIPLE_CHOICES # Httpstatus枚举所定义的成员，它可以是整数值或枚举类型
+#            - RedirectTo=302, http://www.baidu.com # 接收2个参数，第一个是状态码，第二个是url地址，例如我们可以重定义到百度
+            - name: Custom # 自定义过滤器工厂，下面是配置其中定义的Config类的参数，记得args与name对齐
+              args:
+                name: jackluo
+            - Custom2=lzyforever, 男 # 自定义过滤器工厂，使用NameValueConfig做为配置类
+            - name: RequestRateLimiter   # 限流配置，限流的过滤器名称必须使用RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10  # 允许用户每秒处理多少个请求
+                redis-rate-limiter.burstCapacity: 20  # 令牌桶的容量，允许在1秒内完成的最大请求数。
+                key-resolver: "#{@ipKeyResolver}"     # 使用SpEL按名称引用bean
+            - name: Hystrix  # 内置HystrixGatewayFilterFactory实现路由级别的熔断,只需要配置即可实现熔断回退功能
+              args:
+                name: fallbackcmd  # 将请求包装成RouteHystrixCommand执行
+                fallbackUri: forward:/fallback  # fallbackUri是发生熔断时回退的URI地址,目前只支持forward模式的URI,如果服务降级,该请求会被转发到该URI中
+            - name: Retry  # 重试机制
+              args:
+                retries: 3 # 重试次数,默认值是3次
+                series: SERVER_ERROR  # 状态码配置(分段),符合某段状态码才会进行重试逻辑,默认值是SERVER_ERROR,值是5,也就是5XX(5开头的状态码),共有5个值,源码在HttpStatus枚举中的一个枚举
+                #statuses: # 状态码配置，和series不同的是这里是具体状态码的配置，取值参考org.springframework.http.HttpStatus
+                #methods: # 指定哪些方法的请求需要进行重试逻辑，默认值是GET方法，取值参考org.springframework.http.HttpMethod
+                #exceptions: # 指定哪些异常需要进行重试逻辑，默认值是java.io.IOException和org.springframework.cloud.gateway.support.TimeoutException
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # 与Actuator结合使用，可以方便查看/routes和/filters端点信息
+
+# 配置Gateway日志等级，输出转发细节信息
+logging:
+  level:
+    org.springframework.cloud.gateway: debug

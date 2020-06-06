@@ -1,0 +1,24 @@
+server:
+  port: 9022
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+
+spring:
+  application:
+    name: transaction-mq-test
+  activemq:
+    broker-url: tcp://192.168.4.203:61616
+    user: admin
+    password: admin
+    in-memory: true # 默认代理URL是否应该在内存中。如果指定了显式代理，则忽略此值
+    pool:
+      enabled: false # 是否用Pooledconnectionfactory代替普通的ConnectionFactory
+  jms:
+    listener:
+      acknowledge-mode: CLIENT  # 这里使用客户端手动消息确认机制，而不使用默认的自动确认方式，这样做是为了保证消息正常被消费之后再进行确认，如果消费过程中出现异沉睡就不确认（此时MQ有重发机制）

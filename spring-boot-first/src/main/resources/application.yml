@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+com:
+  jack:
+    name: luo
+    nickName: zhiyu
+
+spring:
+  profiles:
+    active: prod
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  task:
+    pool:
+      maxPoolSize: 100
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"

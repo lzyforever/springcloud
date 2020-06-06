@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:master-slave="http://shardingsphere.apache.org/schema/shardingsphere/masterslave"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://shardingsphere.apache.org/schema/shardingsphere/masterslave
+                        http://shardingsphere.apache.org/schema/shardingsphere/masterslave/master-slave.xsd">
+
+    <!--主数据源-->
+    <bean id="ds_0" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" primary="true">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_0?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!--从数据源-->
+    <bean id="ds_1" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_1?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!-- 4.0.0-RC1 版本 负载均衡策略配置方式 -->
+    <!-- <bean id="randomStrategy" class="org.apache.shardingsphere.example.spring.namespace.algorithm.masterslave.RandomMasterSlaveLoadBalanceAlgorithm" /> -->
+
+    <!-- 4.0.0-RC2 之后版本 负载均衡策略配置方式 -->
+    <master-slave:load-balance-algorithm id="randomStrategy" type="RANDOM" />
+
+    <!-- 读写分离数据源 slave-data-source-names如果有多从数据源就用逗号分隔 -->
+    <master-slave:data-source id="masterSlaveDataSource" master-data-source-name="ds_0" slave-data-source-names="ds_1" strategy-ref="randomStrategy">
+        <master-slave:props>
+            <!--是否开启SQL显示，默认值: false-->
+            <prop key="sql.show">true</prop>
+            <!--工作线程数量，默认值: CPU核数-->
+            <prop key="executor.size">10</prop>
+            <!--自定义的key-value值-->
+            <prop key="foo">bar</prop>
+        </master-slave:props>
+    </master-slave:data-source>
+
+    <!-- 增强版JdbcTemplate -->
+    <bean id="extendJdbcTemplate" class="com.jack.jdbc.ExtendJdbcTemplate">
+        <property name="dataSource" ref="masterSlaveDataSource"/>
+        <constructor-arg>
+            <value>com.jack.sharding.entity</value>
+        </constructor-arg>
+    </bean>
+</beans>

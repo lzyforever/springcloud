@@ -1,0 +1,47 @@
+server:
+  port: 9011
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+    status-page-url: http://${spring.cloud.client.ip-address}:${server.port}/swagger-ui.html
+app:
+  id: SampleApp
+
+apollo:
+  meta: http://localhost:8080
+  bootstrap:
+    enabled: true
+    namespaces: application
+
+spring:
+  redis:
+    database: 1
+    host: 192.168.4.202
+    port: 6379
+    password: V5yrNjwd9U53Vfg3U37wEdKca3
+    timeout: 5000ms
+    jedis:
+      pool:
+        max-idle: 60
+        min-idle: 30
+        max-active: 200
+        max-wait: 60000ms
+  application:
+    name: zuul-extend
+
+ribbon:
+  ConnectTimeout: 20000
+  ReadTimeout: 20000
+zuul:
+  host:
+    connect-timeout-millis: 30000
+    socket-timeout-millis: 60000
+
+zuul-extend-org-service: # 这里是服务名称，针对具体的服务配置具体的负载策略
+  ribbon:
+    NFLoadBalancerRuleClassName: com.jack.rule.GrayPushRule # 启动定义的负载均衡策略

@@ -1,0 +1,25 @@
+server:
+  port: 9007
+
+spring:
+  security:
+    user:
+      name: luozy
+      password: jack123
+  application:
+    name: spring-boot-admin-server
+  boot:
+    admin:
+      notify:
+        mail:
+          to: luozy@cmnt.cn,shenmj@cmnt.cn,dengdg@cmnt.cn # 发送给谁
+          from: dev@cmnt.cn # 是谁发送出去的
+  mail:
+    host: smtp.exmail.qq.com
+    username: dev@cmnt.cn
+    password: n5r8bhuy6ddUKEtg
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+      mail.smtp.socketFactory.fallback: false
+      mail.smtp.socketFactory.port: 465

@@ -1,0 +1,13 @@
+server:
+  port: 9100
+
+spring:
+  application:
+    name: storage-mongodb
+  data:
+    mongodb:
+      database: admin
+      host: 192.168.4.203
+      port: 27017
+      username: admin
+      password: luozy

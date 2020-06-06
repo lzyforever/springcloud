@@ -1,0 +1,60 @@
+server:
+  port: 10086
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/,http://luozy:jack123@localhost:8762/eureka/,http://luozy:jack123@localhost:8763/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+
+spring:
+  application:
+    name: api-zuul
+  #servlet:
+  #  multipart:
+  #    max-file-size: 1000MB   # 最大支持文件大小
+  #    max-request-size: 1000MB  # 最大支持请求大小
+
+zuul:
+  routes:
+    luozy:  # luozy是自定义的名称
+      path: /luozy/**  # 当访问luozy/**开头的地址时，就会跳转到下面的url：http://www.baidu.com/上
+      url: http://www.baidu.com/  # 跳转地址
+    service-provider: # 服务名称，通过zuul来实现Eureka中的服务转发访问服务提供的接口，如果不配这个的话，也可以使用服务名称为访问
+      path: /sp/**  # 转发规则：API网关地址+访问的服务名称+接口URI，当然，这里是给这个服务指定了规则/api，访问就是http://localhost:10086/sp/user/hello，如果配1个*，就只能转发一级，配2个星就可以转发任意级
+    abc: # 如果做本地转发，这个服务名称可以乱写
+      path: /api/**
+      url: forward:/local  # 这个是配置本地转发，需要在本地加一个Controller来实现/local是Controller里同的URI
+  prefix: /jack # 配置路由前缀，在每个接口前统一加一个/jack，加了这个配置后，访问就变成了http://localhost:10086/jack/sp/user/hello或http://localhost:10086/jack/service-provider/user/hello
+  IpFilter:
+    pre:
+      disable: true # 禁用自定义的过滤器，true为禁用，false为启用
+  retryable: true  # 开启重试机制
+  include-debug-header: true
+  debug:
+    parameter: debug # 指定调试参数的名称
+    #request: true  # 开启Zuul自带的DebugFilter，也可以在请求参数里面加debug=true也可以实现
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000 # 超时时间 60 秒，防止大文件上传出现超时
+
+ribbon:
+  ConnectTimeout: 3000 # 请求连接的超时时间，单位ms
+  ReadTimeout: 60000  # 请求处理的超时时间，单位ms
+  MaxAutoRetries: 1  # 对当前实例的重试次数
+  MaxAutoRetriesNextServer: 3  # 切换实例的最大重试次数
+  OkToRetryOnAllOperations: true  # 对所有操作请求都进行重试
+  RetryableStatusCodes: 500,404,502  # 对指定的http响应码进行重试
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # 与Actuator结合使用，可以方便查看/routes和/filters端点信息

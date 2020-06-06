@@ -1,0 +1,33 @@
+server:
+  port: 8089
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/,http://luozy:jack123@localhost:8762/eureka/,http://luozy:jack123@localhost:8763/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+
+spring:
+  application:
+    name: hystrix-feign
+
+feign:
+  hystrix:
+    enabled: true # 启用hystrix
+  httpclient:
+    enabled: false # 禁用HttpClient
+  okhttp:
+    enabled: true # 启用OkHttp
+  compression: # 请求和响应启用GZIP压缩配置，并指定需要压缩的类型和最小压缩值的标准
+    request:
+      enabled: true
+      mime-types: text/xml,application/xml,application/json
+      min-request-size: 2048
+    response:
+      enabled: true
+
+logging:
+  level:
+    com.jack: DEBUG # 在FeignConfiguration中配置用Feign日志输出级别后，还需要在这里配置才会输出，这里可以配包名，也可指定具体的类

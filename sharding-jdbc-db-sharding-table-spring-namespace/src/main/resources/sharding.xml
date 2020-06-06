@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:sharding="http://shardingsphere.apache.org/schema/shardingsphere/sharding"
+       xmlns:master-slave="http://shardingsphere.apache.org/schema/shardingsphere/masterslave"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://shardingsphere.apache.org/schema/shardingsphere/sharding
+                        http://shardingsphere.apache.org/schema/shardingsphere/sharding/sharding.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx.xsd http://shardingsphere.apache.org/schema/shardingsphere/masterslave http://shardingsphere.apache.org/schema/shardingsphere/masterslave/master-slave.xsd">
+    <!--ds_0数据源-->
+    <bean id="ds_0" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_0?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!--ds_0从数据源-->
+    <bean id="ds_0_slave" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_0_slave?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!--ds_1主数据源-->
+    <bean id="ds_1" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_1?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!--ds_1从数据源-->
+    <bean id="ds_1_slave" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_1_slave?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!--ds_2主数据源-->
+    <bean id="ds_2" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_2?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!--ds_2从数据源-->
+    <bean id="ds_2_slave" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.113:3306/jack_ds_2_slave?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value="nihaoma"/>
+    </bean>
+
+    <!-- 4.0.0-RC1 版本 负载均衡策略配置方式 -->
+    <!-- <bean id="randomStrategy" class="org.apache.shardingsphere.example.spring.namespace.algorithm.masterslave.RandomMasterSlaveLoadBalanceAlgorithm" /> -->
+    <!-- 4.0.0-RC2 之后版本 负载均衡策略配置方式 -->
+    <master-slave:load-balance-algorithm id="randomStrategy" type="RANDOM" />
+
+    <!--<bean id="myTablePreciseShardingAlgorithm" class="com.jack.sharding.algorithm.MyTablePreciseShardingAlgorithm" />-->
+    <!--<bean id="myDbPreciseShardingAlgorithm" class="com.jack.sharding.algorithm.MyDbPreciseShardingAlgorithm" />-->
+
+    <!-- user_0,user_1,user_2 -->
+    <!--<sharding:standard-strategy id="userTableShardingStrategy" sharding-column="id" precise-algorithm-ref="myTablePreciseShardingAlgorithm" />-->
+    <!-- db1,db2-->
+    <!--<sharding:standard-strategy id="userDbShardingStrategy" sharding-column="id" precise-algorithm-ref="myDbPreciseShardingAlgorithm" />-->
+
+    <!--inline表达式-->
+    <sharding:inline-strategy id="userDbShardingStrategy" sharding-column="id" algorithm-expression="ds_ms_$->{id % 3}"/>
+    <sharding:inline-strategy id="userTableShardingStrategy" sharding-column="id" algorithm-expression="user_$->{id % 3}"/>
+
+    <sharding:key-generator id="keyGenerator" type="SNOWFLAKE" column="id" />
+    
+    <sharding:data-source id="shardingDataSource">
+        <sharding:sharding-rule data-source-names="ds_0, ds_1, ds_2, ds_0_slave, ds_1_slave, ds_2_slave">
+            <sharding:master-slave-rules>
+                <sharding:master-slave-rule id="ds_ms_0" master-data-source-name="ds_0" slave-data-source-names="ds_0_slave" strategy-ref="randomStrategy"/>
+                <sharding:master-slave-rule id="ds_ms_1" master-data-source-name="ds_1" slave-data-source-names="ds_1_slave" strategy-ref="randomStrategy"/>
+                <sharding:master-slave-rule id="ds_ms_2" master-data-source-name="ds_2" slave-data-source-names="ds_2_slave" strategy-ref="randomStrategy"/>
+            </sharding:master-slave-rules>
+            <sharding:table-rules>
+                <sharding:table-rule logic-table="user" actual-data-nodes="ds_ms_$->{0..2}.user_$->{0..2}"
+                                     database-strategy-ref="userDbShardingStrategy"
+                                     table-strategy-ref="userTableShardingStrategy" key-generator-ref="keyGenerator"/>
+            </sharding:table-rules>
+            <sharding:broadcast-table-rules>
+                <sharding:broadcast-table-rule table="loudong"/>
+            </sharding:broadcast-table-rules>
+        </sharding:sharding-rule>
+        <sharding:props>
+            <prop key="sql.show">true</prop>
+        </sharding:props>
+    </sharding:data-source>
+
+    <!-- 增强版JdbcTemplate -->
+    <bean id="extendJdbcTemplate" class="com.jack.jdbc.ExtendJdbcTemplate">
+        <property name="dataSource" ref="shardingDataSource"/>
+        <constructor-arg>
+            <value>com.jack.sharding.entity</value>
+        </constructor-arg>
+    </bean>
+</beans>

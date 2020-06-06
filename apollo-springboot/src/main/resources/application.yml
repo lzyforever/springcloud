@@ -1,0 +1,18 @@
+server:
+  port: 8000
+
+app:
+  id: SampleApp
+
+apollo:
+  meta: http://localhost:8080
+  bootstrap:
+    enabled: true
+    namespaces: application
+
+username: luozy
+
+redis:
+  cache:
+    host: 192.168.1.1
+    port: 2181

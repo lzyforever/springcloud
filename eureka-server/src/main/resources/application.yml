@@ -1,0 +1,19 @@
+server:
+  port: 8761 # 注册中心的端口号
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOST_NAME:eureka-server} # 服务主机名
+    appname: ${spring.application.name} # 服务名称，默认为 unknow 这里直接取 spring.application.name
+  client:
+    register-with-eureka: false # 由于该应用为注册中心，所以设置为false，代表不向注册中心注册自己，默认为true
+    fetch-registry: false # 由于注册中心的职责就是维护服务实例，它并不需要去检索服务，所以也设置为false，默认为true
+    #service-url:
+    #  defaultZone: ${EUREKA_URL_LIST:http://eureka-server:8761/eureka/}  #指定服务中心eureka server的地址，如果有多个，就在这里配置其他的，这里要和hostname一致，不然就会unavailable-replicas
+spring:
+  security:
+    user:
+      name: luozy
+      password: jack123
+  application:
+    name: eureka-server # 注册中心的名称

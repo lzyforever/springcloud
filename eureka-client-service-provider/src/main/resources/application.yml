@@ -1,0 +1,20 @@
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/,http://luozy:jack123@localhost:8762/eureka/,http://luozy:jack123@localhost:8763/eureka/} # Eureka Server注册中心的地址
+    healthcheck:
+      enabled: true # 开启健康检查，需要在pom包里面引入actuator包依赖
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+    # status-page-url: http://www.baidu.com # 这个是自定义实例的跳转链接地址，就是在eureka页面上status下面的跳转链接
+    lease-renewal-interval-in-seconds: 5 # 表示Eureka Client发送心跳给server端的频率
+    lease-expiration-duration-in-seconds: 5 # 表示Eureka Server至上一次收到client的心跳之后，等待下一次心跳的超时时间，若在这个时间内没有收到下一次心跳，则移除该instance
+    metadata-map:
+      luozy: jack
+spring:
+  application:
+    name: service-provider

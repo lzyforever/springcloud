@@ -1,0 +1,48 @@
+server:
+  port: 9002
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+
+# 使用了rmq的方式来进行调用链数据的发送了，但是zipkin服务并不知道rmq的信息，所以在启动zipkin服务的时候需要指定定rmq的信息
+# java -DRABBITMQ_ADDRESS=192.168.4.203:5672 -DRABBITMQ_USERNAME=guest -DRABBITMQ_PASSWORD=guest -jar zipkin.jar
+spring:
+  rabbitmq:
+    addresses: amqp://192.168.4.203:5672
+    username: guest
+    password: guest
+  zipkin:
+    sender:
+      type: rabbit # 修改zipkin的数据发送方式为RabbitMQ
+    #base-url: ${ZIPKIN_URL:http://localhost:9411} # zipkin服务地址，配置了RMQ的方式进行发送，就不需要这个了
+  sleuth:
+    sampler:
+      probability: 1.0 # 收集信息比例，默认0.1，设置为1时为全收集
+    web:
+      skip-pattern: /api-docs.*|/autoconfig|/configprops|/dump|/health|/info|/metrics.*|/mappings|/trace|/swagger.*|.*\.png|.*\.css|.*\.js|.*\.html|/favicon.ico|/hystrix.stream|/application/.*|/actuator.*|/cloudfoundryapplication
+  application:
+    name: sleuth-second-service
+
+feign:
+  hystrix:
+    enabled: true # 启用hystrix
+  httpclient:
+    enabled: false # 禁用HttpClient
+  okhttp:
+    enabled: true # 启用OkHttp
+  compression: # 请求和响应启用GZIP压缩配置，并指定需要压缩的类型和最小压缩值的标准
+    request:
+      enabled: true
+      mime-types: text/xml,application/xml,application/json
+      min-request-size: 2048
+    response:
+      enabled: true
+
+logging:
+  level:
+    com.jack.feign: DEBUG

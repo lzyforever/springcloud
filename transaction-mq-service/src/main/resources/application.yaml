@@ -1,0 +1,37 @@
+server:
+  port: 9020
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+
+spring:
+  application:
+    name: transaction-mq-service
+  datasource:
+    druid:
+      url: jdbc:mysql://192.168.1.113:3306/jack-test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      username: root
+      password: nihaoma
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      initial-size: 10  # 初始化大小
+      min-idle: 10      # 最小
+      max-active: 50    # 最大
+      max-wait: 60000   # 获取连接等待超时的时间
+      time-between-eviction-runs-millis: 60000  # 间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      min-evictable-idle-time-millis: 300000    # 一个连接在池中最小生存的时间，单位是毫秒
+      validation-query: SELECT 1 FROM DUAL
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      time-between-log-stats-millis: 300000
+      pool-prepared-statements: true            # 定期把监控数据输出到日志中
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat,wall
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=1000    # 打开mergeSql功能；慢SQL记录
+
+

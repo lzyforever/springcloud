@@ -1,0 +1,25 @@
+server:
+  port: 9001
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+
+spring:
+  rabbitmq:
+    addresses: amqp://192.168.4.203:5672
+    username: guest
+    password: guest
+  zipkin:
+    sender:
+      type: rabbit # 修改zipkin的数据发送方式为RabbitMQ
+    # base-url: ${ZIPKIN_URL:http://localhost:9411} # zipkin服务地址
+  sleuth:
+    sampler:
+      probability: 1.0
+  application:
+    name: sleuth-frist-service

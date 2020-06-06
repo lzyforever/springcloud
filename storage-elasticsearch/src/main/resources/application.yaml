@@ -1,0 +1,10 @@
+server:
+  port: 9102
+
+spring:
+  data:
+    elasticsearch:
+      cluster-name: elasticsearch
+      cluster-nodes: 192.168.4.203:9300
+  application:
+    name: storage-elasticsearch

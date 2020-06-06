@@ -1,0 +1,29 @@
+feign:
+  client:
+    config:
+      feign-first:  # 这里是feignName，为某个服务单独进行feign的配置，default时表示全局配置
+        connectTimeout: 5000 # 链接超时时间
+        readTimeout: 5000  # 读取超时时间
+        loggerLevel: full  # 日志显示等级
+        retryer: com.jack.SimpleRetryer # 重试策略
+        requestInterceptors:  # 拦截器
+          - com.jack.FooRequestInterceptor
+          - com.jack.BarRequestInterceptor
+        encoder: com.jack.MyEncoder  # 编码器
+        decoder: com.jack.MyDecoder  # 解码器
+        contract: com.jack.SimpleContract  #契约
+  httpclient:
+    enabled: false # 禁用HttpClient
+  okhttp:
+    enabled: true # 启用OkHttp
+  compression: # 请求和响应启用GZIP压缩配置，并指定需要压缩的类型和最小压缩值的标准
+    request:
+      enabled: true
+      mime-types: text/xml,application/xml,application/json
+      min-request-size: 2048
+    response:
+      enabled: true
+
+logging:
+  level:
+    com.jack.remote: DEBUG  # 设置com.jack.remote包下所有的类日志为debug

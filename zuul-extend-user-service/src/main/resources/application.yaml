@@ -1,0 +1,15 @@
+server:
+  port: 9012
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/} # Eureka Server注册中心的地址
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+    status-page-url: http://${spring.cloud.client.ip-address}:${server.port}/swagger-ui.html
+
+spring:
+  application:
+    name: zuul-extend-user-service

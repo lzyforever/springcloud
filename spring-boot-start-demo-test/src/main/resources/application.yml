@@ -1,0 +1,4 @@
+spring:
+  user:
+    name: jack haha
+    enabled: true

@@ -1,0 +1,29 @@
+server:
+  port: 9009
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://luozy:jack123@localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true} # 采用IP注册
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port} # 定义实例ID格式
+    metadata-map: # 添加metadata-map配置，将spring boot admin的账号密码带入，不然不能通过认证
+      user:
+        name: luozy
+        password: jack123
+
+spring:
+  application:
+    name: spring-boot-admin-eureka
+  security:
+    user:
+      name: luozy
+      password: jack123
+
+# 暴露所有actuator端点信息，可以获取更多的服务详细数据
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
