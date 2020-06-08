@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: spring-boot-swagger
+  security:
+    user:
+      name: jack
+      password: luozy
 
 swagger:
   base-package: com.jack # swagger扫描包
