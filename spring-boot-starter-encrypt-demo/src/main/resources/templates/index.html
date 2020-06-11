@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>数据传输加解密DEMO</title>
+</head>
+<script type="text/javascript" src="js/aes.js"></script>
+<script type="text/javascript" src="js/crypto-js.js"></script>
+<script type="text/javascript" src="js/pad-zeropadding.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    function getData() {
+        $.ajax({
+            type: "GET",
+            url: "/get",
+            success: function (data) {
+                console.log("返回的数据：" + data);
+                console.log("解密后的数据：" + Decrypt(data));
+            }
+        });
+    }
+
+    function sendData() {
+        console.log("发送的加密的数据：" + Encrypt(JSON.stringify({name: "lzyforever"})));
+        $.ajax({
+            type: "POST",
+            url: "/save",
+            data: Encrypt(JSON.stringify({name: "lzyforever"})),
+            dataType: 'json',
+            contentType: "application/json",
+            success: function (data) {
+                console.log("返回的加密数据：" + data);
+                console.log("解密之后：" + Decrypt(data));
+                console.log("解密之后转json对象：" + JSON.parse(Decrypt(data)).name);
+            }
+        });
+    }
+
+    var key = CryptoJS.enc.Utf8.parse("881234jack1988sc");
+
+    /**
+     * 加密
+     * @param content
+     * @returns {string}
+     * @constructor
+     */
+    function Encrypt(content) {
+        // 进行UTF-8编码
+        var tmp = CryptoJS.enc.Utf8.parse(content);
+        // 进行AES加密
+        var encryptd = CryptoJS.AES.encrypt(tmp, key, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        return encryptd.toString();
+    }
+
+    /**
+     * 解密
+     * @param content
+     * @returns {string}
+     * @constructor
+     */
+    function Decrypt(content) {
+        var decrypt = CryptoJS.AES.decrypt(content, key, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        return CryptoJS.enc.Utf8.stringify(decrypt).toString();
+    }
+
+</script>
+<body>
+<input type="button" value="获取数据" onclick="getData()"/>
+<input type="button" value="发送数据" onclick="sendData()"/>
+</body>
+</html>
