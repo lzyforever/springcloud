@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AES数据传输加解密DEMO</title>
+</head>
+<!--AES加密-->
+<script type="text/javascript" src="js/aes.js"></script>
+<script type="text/javascript" src="js/crypto-js.js"></script>
+<script type="text/javascript" src="js/pad-zeropadding.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<body>
+<h1>AES加解密</h1>
+<input type="button" value="测试GET请求，URL带参数形式" onclick="testGet()"/>
+<input type="button" value="测试POST请求，data参数形式" onclick="testPost()"/>
+<input type="button" value="测试GET请求，获取实体数据" onclick="getEntityData()"/>
+<input type="button" value="测试POST请求，data以JSON形式" onclick="sendEntityData()"/>
+<input type="button" value="测试GET请求，返回XML" onclick="getXmlData()"/>
+<input type="button" value="测试POST请求，返回字符串" onclick="postXmlData()"/>
+<script>
+
+    /**
+     *  测试普通的get请求
+     */
+    function testGet() {
+        alert("请求的内容加密前是：luozy");
+        alert("请求的内容加密后是：" + Encrypt("luozy"));
+        $.ajax({
+            type: "GET",
+            url: "/encryptStr?name=" + Encrypt("luozy"),
+            dataType: 'text',
+            success: function (resData) {
+                alert("返回的数据解密前是：" + resData);
+                alert("返回的数据解密后是：" + Decrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试普通的post请求
+     */
+    function testPost() {
+        alert("请求的内容加密前是：luozy");
+        alert("请求的内容加密后是：" + Encrypt("luozy"));
+        $.ajax({
+            type: "POST",
+            url: "/encryptStr",
+            dataType: 'text',
+            data: {name: Encrypt("luozy")},
+            success: function (resData) {
+                alert("返回的数据解密前是：" + resData);
+                alert("返回的数据解密后是：" + Decrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试实体对象GET请求
+     */
+    function getEntityData() {
+        $.ajax({
+            type: "GET",
+            url: "/encryptEntity",
+            dataType: 'text',
+            success: function (resData) {
+                alert("返回的数据解密前是：" + resData);
+                alert("返回的数据解密后是：" + Decrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试实体对象POST请求，JSON形式
+     */
+    function sendEntityData() {
+        alert("发送的数据：" + Encrypt(JSON.stringify({id: 1, name: "luozy"})));
+        $.ajax({
+            type: "POST",
+            url: "/save",
+            data: Encrypt(JSON.stringify({id: 1, name: "luozy"})),
+            dataType: 'text',
+            contentType: "application/json",
+            success: function (resData) {
+                alert("返回的数据：" + resData);
+                alert("解密之后：" + Decrypt(resData));
+                alert("解密之后转json对象：" + JSON.parse(Decrypt(resData)).name);
+            }
+        });
+    }
+
+    /**
+     * 测试获取XML格式的数据
+     */
+    function getXmlData() {
+        $.ajax({
+            type: "GET",
+            url: "/encryptEntityXml",
+            dataType: 'text',
+            success: function (resData) {
+                alert("返回的数据解密前是：" + resData);
+                alert("返回的数据解密后是：" + Decrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试传参型类为xml，返回字符串的数据
+     */
+    function postXmlData() {
+        var xmlData = "<user><id>1</id><name>luozy</name></user>";
+        $.ajax({
+            type: "POST",
+            url: "/decryptEntityXml",
+            data: Encrypt(xmlData),
+            dataType: 'text',
+            contentType: "application/xml",
+            success: function (resData) {
+                alert("返回的数据：" + resData);
+                alert("解密之后：" + Decrypt(resData));
+            }
+        });
+    }
+
+    var key = CryptoJS.enc.Hex.parse("031d46bb084f4c729a09b61637d0a5c8");
+
+    /**
+     * 加密
+     * @param word
+     * @returns {string}
+     * @constructor
+     */
+    function Encrypt(word) {
+        var srcs = CryptoJS.enc.Utf8.parse(word);
+        var encrypted = CryptoJS.AES.encrypt(srcs, key, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        return encrypted.toString();
+    }
+
+    /**
+     * 解密
+     * @param word
+     * @returns {string}
+     * @constructor
+     */
+    function Decrypt(word) {
+        var decrypt = CryptoJS.AES.decrypt(word, key, {
+            mode: CryptoJS.mode.ECB,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        return CryptoJS.enc.Utf8.stringify(decrypt).toString();
+    }
+
+</script>
+
+</body>
+
+</html>

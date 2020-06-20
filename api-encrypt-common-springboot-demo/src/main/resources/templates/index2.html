@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>数据传输加解密DEMO</title>
+</head>
+<!--RSA加密-->
+<script type="text/javascript" src="js/jsencrypt.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<body>
+<h1>RSA数据传输加解密DEMO</h1>
+<input type="button" value="测试公私钥" onclick="testEquals()"/>
+<input type="button" value="测试GET请求，URL带参数形式" onclick="rsaTestGet()"/>
+<input type="button" value="测试POST请求，data参数形式" onclick="rsaTestPost()"/>
+<input type="button" value="测试GET请求，获取实体数据" onclick="rsaGetEntityData()"/>
+<input type="button" value="测试POST请求，data以JSON形式" onclick="rsaSendEntityData()"/>
+<input type="button" value="测试GET请求，返回XML" onclick="rsaGetXmlData()"/>
+<input type="button" value="测试POST请求，返回字符串" onclick="rsaPostXmlData()"/>
+
+<script>
+    /**
+     *  测试普通的get请求
+     */
+    function rsaTestGet() {
+        console.log("请求的内容加密前是：luozy");
+        console.log("请求的内容加密后是：" + encodeURIComponent(RsaEncrypt("luozy")));
+        $.ajax({
+            type: "GET",
+            url: "/encryptStr?name=" + encodeURIComponent(RsaEncrypt("luozy")),
+            dataType: 'text',
+            success: function (resData) {
+                console.log("返回的数据解密前是：" + resData);
+                console.log("返回的数据解密后是：" + RsaDecrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试普通的post请求
+     */
+    function rsaTestPost() {
+        console.log("请求的内容加密前是：luozy");
+        console.log("请求的内容加密后是：" + encodeURIComponent(RsaEncrypt("luozy")));
+        $.ajax({
+            type: "POST",
+            url: "/encryptStr",
+            dataType: 'text',
+            data: {name: encodeURIComponent(RsaEncrypt("luozy"))},
+            success: function (resData) {
+                console.log("返回的数据解密前是：" + resData);
+                console.log("返回的数据解密后是：" + RsaDecrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试实体对象GET请求
+     */
+    function rsaGetEntityData() {
+        $.ajax({
+            type: "GET",
+            url: "/encryptEntity",
+            dataType: 'text',
+            success: function (resData) {
+                console.log("返回的数据解密前是：" + resData);
+                console.log("返回的数据解密后是：" + RsaDecrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试实体对象POST请求，JSON形式
+     */
+    function rsaSendEntityData() {
+        console.log("发送的数据：" + RsaEncrypt(JSON.stringify({id: 1, name: "luozy"})));
+        $.ajax({
+            type: "POST",
+            url: "/save",
+            data: RsaEncrypt(JSON.stringify({id: 1, name: "luozy"})),
+            dataType: 'text',
+            contentType: "application/json",
+            success: function (resData) {
+                console.log("返回的数据：" + resData);
+                console.log("解密之后：" + RsaDecrypt(resData));
+                console.log("解密之后转json对象：" + JSON.parse(RsaDecrypt(resData)).name);
+            }
+        });
+    }
+
+    /**
+     * 测试获取XML格式的数据
+     */
+    function rsaGetXmlData() {
+        $.ajax({
+            type: "GET",
+            url: "/encryptEntityXml",
+            dataType: 'text',
+            success: function (resData) {
+                console.log("返回的数据解密前是：" + resData);
+                console.log("返回的数据解密后是：" + RsaDecrypt(resData));
+            }
+        });
+    }
+
+    /**
+     * 测试传参型类为xml，返回字符串的数据
+     */
+    function rsaPostXmlData() {
+        var xmlData = "<user><id>1</id><name>luozy</name></user>";
+        $.ajax({
+            type: "POST",
+            url: "/decryptEntityXml",
+            data: RsaEncrypt(xmlData),
+            dataType: 'text',
+            contentType: "application/xml",
+            success: function (resData) {
+                console.log("返回的数据：" + resData);
+                console.log("解密之后：" + RsaDecrypt(resData));
+            }
+        });
+    }
+
+    // 公钥
+    var publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm0457zGyQJuPhvIX2CIm9UcgyjBW2QnHp2EXFdelS+dlaE5frunl0QjOBC/qh9o4r6PvSSz2QgN80cVJaKiokZohxwjGYtsaE7uNRAE+VOj7/M4pzthlYVfeq9h0NCnfA2J1eu4FsoAYgj5vPxEzSPz6UTHqBUe0k3lV0zTblqpblvTaTaObfSZPjd149qb5xWzwfRlK+Uy83MwPmvaQBlCVDr6BnTPEb3D7HmoJGfgl/W3KsXC5dZD5ey5JVk5dFy72YliynfWDeBC9BR3PAoIN4RRjUaRNokukHXLKjhxT1ZhOlpxUUEy1kJNGNnylFRYMY4KvI2t8EXEx6UUEqQIDAQAB";
+    // 私钥
+    var privateKey = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCbTjnvMbJAm4+G8hfYIib1RyDKMFbZCcenYRcV16VL52VoTl+u6eXRCM4EL+qH2jivo+9JLPZCA3zRxUloqKiRmiHHCMZi2xoTu41EAT5U6Pv8zinO2GVhV96r2HQ0Kd8DYnV67gWygBiCPm8/ETNI/PpRMeoFR7STeVXTNNuWqluW9NpNo5t9Jk+N3Xj2pvnFbPB9GUr5TLzczA+a9pAGUJUOvoGdM8RvcPseagkZ+CX9bcqxcLl1kPl7LklWTl0XLvZiWLKd9YN4EL0FHc8Cgg3hFGNRpE2iS6QdcsqOHFPVmE6WnFRQTLWQk0Y2fKUVFgxjgq8ja3wRcTHpRQSpAgMBAAECggEBAInRIE4nzqPQp8w7l3c/z0yH4wwpW1hcemUJHoBOjivOWsn2CqjgfQVDh/ZlQv1tZDJRCq3oDVvFVoWcSilqybPzkBfcrJfbEMgD/jcj11loKv1LQgSBOW3pmPrsKSqFIZcST2hYQowFajpiBzxzGgyiGcvlvGMVH6Ri3wt+84I9pbkhCYVTymmulBzH63tTtVtX6oGg4cR0Fz2nn9ZyGb5bYRA5vGPqz5C7pBtvwesqy3ntehPCZitjwRnIT4zQ69DQmLI0zwJ4xqNfSNLFj8IrMokbouJDF9w8Q5hVhxr8OLHO1fcif6fTJ/fO0uSYkGxLm4z45HxjpJr0Ogq+HwECgYEA2UrrlItGPAW+cyYlrcoPTeWaQnUM9c0/8ce+07ww8zGX0DaPLrOWf8wbpM+yyqOLz5e+PEt8f/WK7NDLPatmeBXxfrqhiUtjLQ3rXt+eEA1zsaKOONe5TjVkAhZO92zJelR1uXuweNCJ6EYxnDLyXbc2H91uSeWAQb/IL+bRsGECgYEAtviK3qXmnIS1TdlIJu4kZpsrioqFw/vEMukSuIkUsifxb9UvBHa81hUct2veui6d2xRvpTZPdU8whWJ8HODdyzqGOmrGDnGFrWHCv0qQxkLa5jcg0A7Gv2zQ9IeXMQz/rFPs647kIg9LNm33mikrd3ZU1qX0xBZ/3bSLceIoWUkCgYBpxSNJSkYk33LmIDKFFu8+Lr5ZDRsC5ybyLRXBgUCekIxiaLxnsjlW+eaW4hcYtmVO5oFOXjw7GS3HupbD7RPS7nOACZ6p8w1SmAzzQIxzKekgFY1/M9raq/iDX5KOs+Ca8FPhtsie9nu6mbh6XP5HCfCJsEKIK/OzjYQHdSaq4QKBgQClBOYiRlgFw/7MtnHHgrJbxAjyC1r3VgMus1zKCAAdab7r0MZ17S0Em8fpeaVIH7EJHJZQ1/mz4HbvZdJwLTJ8D01uNExqTGJ27Bu7cOG/nh5U0VWLsDf5/4c5c2ydtY6F+q9MB/Si704zSdytMgJc3OFJMiXeEDjEWQgG7yTa2QKBgD4TkPc7UecOTA6S8d9hajIUL/1GFjkQAd5SmWVxOTh0tpZ/5KCKvcAI0uT6QCUmlxaLIENOD7RBpNVs9uNYPBVzmjpxK1N1NOn+alaaL0HBHAWZA03RAmlJE/ak29QSyJSq75igVyUIPYSN4di0lJw4IvkOFhUZnf0VYpwfyhzq";
+
+    /**
+     * RSA加密
+     * @param word
+     * @returns {string}
+     * @constructor
+     */
+    function RsaEncrypt(word) {
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(publicKey);
+        return encrypt.encrypt(word);
+    }
+
+    /**
+     * RSA解密
+     * @param word
+     * @returns {string}
+     * @constructor
+     */
+    function RsaDecrypt(word) {
+        var decrypt = new JSEncrypt();
+        decrypt.setPrivateKey(privateKey)
+        return decrypt.decrypt(word);
+    }
+
+    function testEquals() {
+
+        var enc = "jackluo&lzyforever";
+
+        // Encrypt with the public key...
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(publicKey);
+        var encrypted = encrypt.encrypt(enc);
+
+        console.log(encrypted);
+
+        console.log("uri encode data："+encodeURIComponent(encrypted));
+
+        var dec = "DVmHDjL2JOh39M3y7vPpeEZPAxnHl9/rp5IMu0L/6QlF8FDIQhkxxRwFOUdgNZTiqUv24zNhVNd3Iv9ncBcIn3eeifsAGQpwofSLtIX4QrxRd/469oGtc95gIiDRZGHT13WXhFt1tzNeJeEUPJlx5I4ZR+4bu1CzQ+WWh6+T7SpT5dCEIaNYOvOjaYHELREnSTn7vY4znY0WgrxnXcGuSyrWd66MFRn9rCoppZS2RdeXmsMe5mAbCyA/cQWUsbPsYkRZwXYCU1tJaI02BezIZ3E7vid//zEl2Y3WG+vNE8AwukVYl/C/OX4VELYGkQWx1oXDN4dRFJp1LOKoT9DoXw==";
+
+        // Decrypt with the private key...
+        var decrypt = new JSEncrypt();
+        decrypt.setPrivateKey(privateKey);
+        var uncrypted = decrypt.decrypt(dec);
+
+        console.log(uncrypted);
+
+    }
+
+</script>
+</body>
+
+</html>
