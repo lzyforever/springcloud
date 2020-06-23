@@ -1,0 +1,13 @@
+server:
+  port: 9090
+spring:
+  application:
+    name: spring-boot-rabbitmq-comsumer
+  # 配置rabbitmq服务器
+  rabbitmq:
+    host: 192.168.4.203
+    port: 5672
+    username: admin
+    password: admin@123
+    # 虚拟host，可以不设置，使用server默认host
+    virtual-host: jack-host
