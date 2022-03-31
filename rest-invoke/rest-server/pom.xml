@@ -9,7 +9,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>1.5.4.RELEASE</version>
+			<version>2.5.12</version>
 		</dependency>
 		<!-- 服务器端要加上这个依赖，否则客户端在请求时会报以下异常： Exception in thread "main" feign.FeignException: 
 			status 415 reading PersonClient#createPersonXML(Person); content: {"timestamp":1502705981406,"status":415,"error":"Unsupported 
